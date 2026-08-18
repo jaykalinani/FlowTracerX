@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+REQUIRES FlowTracerX CarpetX Loop
+
+REQUIRES THORNS: HydroBaseX ADMBaseX ODESolvers
+
+PROVIDES TestFlowTracerX
+{
+}

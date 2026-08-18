@@ -1,0 +1,10 @@
+Cactus Code Thorn TestFlowTracerX
+Core Author(s)  : Jay Kalinani <jaykalinani@gmail.com>
+Maintainer(s)   : Jay Kalinani <jaykalinani@gmail.com>
+Licence         : GPL-3.0-or-later
+--------------------------------------------------------------------------
+
+1. Purpose
+
+Provide analytic GPU, boundary, AMR, subcycling, output, and restart tests for
+the FlowTracerX thorn.

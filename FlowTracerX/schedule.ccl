@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+SCHEDULE FlowTracerX_ParamCheck AT paramcheck
+{
+  LANG: C
+  OPTIONS: global
+} "Validate FlowTracerX parameters and inherited fields"
+
+if (active) {
+  STORAGE: particle_vtilde
+
+  SCHEDULE FlowTracerX_Setup AT basegrid
+  {
+    LANG: C
+    OPTIONS: global
+  } "Attach AMReX particle containers to CarpetX patches"
+
+  SCHEDULE FlowTracerX_Initialise AT postinitial
+  {
+    LANG: C
+    OPTIONS: global
+  } "Create initial tracer sets"
+
+  SCHEDULE FlowTracerX_Recover AT post_recover_variables
+  {
+    LANG: C
+    OPTIONS: global
+  } "Recover native particle checkpoints"
+
+  SCHEDULE FlowTracerX_Regrid AT postregrid
+  {
+    LANG: C
+    OPTIONS: global
+  } "Resize and redistribute particles after regridding"
+
+  SCHEDULE FlowTracerX_BeginStep AT prestep
+  {
+    LANG: C
+    OPTIONS: global
+  } "Prepare particle Runge--Kutta state on active CarpetX levels"
+
+  SCHEDULE GROUP FlowTracerX_TransportStage IN ODESolvers_RHS
+  {
+  } "Evaluate one passive-tracer transport stage"
+
+  SCHEDULE FlowTracerX_PrepareVtilde IN FlowTracerX_TransportStage
+  {
+    LANG: C
+    READS: HydroBaseX::vel(everywhere)
+    READS: ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
+    WRITES: particle_vtilde(everywhere)
+  } "Compute cell-centered coordinate transport velocity on the GPU"
+
+  SCHEDULE FlowTracerX_AdvanceStage IN FlowTracerX_TransportStage AFTER FlowTracerX_PrepareVtilde
+  {
+    LANG: C
+    OPTIONS: global
+    READS: particle_vtilde(everywhere)
+    READS: ADMBaseX::lapse(everywhere)
+  } "Interpolate grid fields and advance particles on the GPU"
+
+  SCHEDULE FlowTracerX_FinishStep AT poststep
+  {
+    LANG: C
+    OPTIONS: global
+  } "Finish particle lifecycle handling and local AMReX redistribution"
+
+  SCHEDULE FlowTracerX_Output AT analysis
+  {
+    LANG: C
+    OPTIONS: global
+  } "Write synchronized particle diagnostics"
+
+  SCHEDULE FlowTracerX_CheckpointInitial AT cpinitial AFTER CarpetX_CheckpointInitial
+  {
+    LANG: C
+    OPTIONS: meta
+  } "Write the initial particle sidecar beside the CarpetX checkpoint"
+
+  SCHEDULE FlowTracerX_Checkpoint AT checkpoint AFTER CarpetX_Checkpoint
+  {
+    LANG: C
+    OPTIONS: meta
+  } "Write the particle sidecar beside the CarpetX checkpoint"
+
+  SCHEDULE FlowTracerX_CheckpointTerminate AT terminate AFTER CarpetX_CheckpointTerminate
+  {
+    LANG: C
+    OPTIONS: meta
+  } "Write the terminating particle sidecar beside the CarpetX checkpoint"
+
+  SCHEDULE FlowTracerX_Shutdown AT shutdown BEFORE CarpetX_Shutdown
+  {
+    LANG: C
+    OPTIONS: meta
+  } "Release FlowTracerX particle storage"
+}

@@ -1,0 +1,248 @@
+ActiveThorns = "
+  ADMBaseX
+  AsterAnalysis
+  AsterMasks
+  AsterSeeds
+  AsterX
+  CarpetX
+  CoordinatesX
+  Cowling
+  EOSX
+  FlowTracerX
+  Formaline
+  HydroBaseX
+  IOUtil
+  ODESolvers
+  Subcycling
+  TimerReport
+  TmunuBaseX
+"
+
+# ***** User-defined parameters *****
+$nlevels = 4
+$ncells = 32
+$dtfac = 0.25
+# The finest-level clock advances by 0.0009765625. Forty-eight iterations are
+# six hierarchy synchronization intervals, giving an output cadence of
+# Delta t = 0.046875 (the closest synchronized cadence to 0.05).
+$output_every = 48
+$shear_layer_y = 0.25
+$shear_seed_width = 0.10
+
+# -------------------- Cactus --------------------------------------------------
+Cactus::cctk_show_schedule = yes
+Cactus::presync_mode = "mixed-error"
+Cactus::terminate = "time"
+Cactus::cctk_final_time = 2.0
+
+# -------------------- CarpetX -------------------------------------------------
+CarpetX::verbose = no
+CarpetX::poison_undefined_values = no
+
+CarpetX::xmin = -0.5
+CarpetX::ymin = -0.5
+CarpetX::zmin = -1.0 / $ncells
+CarpetX::xmax = 0.5
+CarpetX::ymax = 0.5
+CarpetX::zmax = 1.0 / $ncells
+
+CarpetX::ncells_x = $ncells
+CarpetX::ncells_y = $ncells
+CarpetX::ncells_z = 2
+
+CarpetX::boundary_x = "none"
+CarpetX::boundary_y = "neumann"
+CarpetX::boundary_z = "neumann"
+CarpetX::boundary_upper_x = "none"
+CarpetX::boundary_upper_y = "neumann"
+CarpetX::boundary_upper_z = "neumann"
+CarpetX::periodic = yes
+CarpetX::periodic_x = yes
+CarpetX::periodic_y = no
+CarpetX::periodic_z = no
+
+CarpetX::max_num_levels = $nlevels
+CarpetX::regrid_every = 10
+CarpetX::regrid_error_threshold = 0.2
+
+CarpetX::blocking_factor_x = 8
+CarpetX::blocking_factor_y = 8
+CarpetX::blocking_factor_z = 2
+CarpetX::max_grid_size_x = 256
+CarpetX::max_grid_size_y = 256
+CarpetX::max_grid_size_z = 256
+CarpetX::max_tile_size_x = 10240000
+CarpetX::max_tile_size_y = 10240000
+CarpetX::max_tile_size_z = 10240000
+
+# DDF and three ghost cells are the established AsterX AMR/subcycling setup.
+CarpetX::prolongation_type = "ddf"
+CarpetX::ghost_size = 3
+CarpetX::dtfac = $dtfac
+CarpetX::refine_grid_layout = no
+CarpetX::use_subcycling = yes
+CarpetX::restrict_during_sync = no
+
+# -------------------- ODESolvers ----------------------------------------------
+ODESolvers::method = "RK4"
+
+# -------------------- ADMBaseX -------------------------------------------------
+ADMBaseX::initial_data = "Cartesian Minkowski"
+ADMBaseX::initial_lapse = "one"
+ADMBaseX::initial_shift = "zero"
+ADMBaseX::initial_dtlapse = "none"
+ADMBaseX::initial_dtshift = "none"
+
+# -------------------- AsterSeeds ----------------------------------------------
+# AsterSeeds defines discontinuous shear interfaces at y = +/- 0.25.
+AsterSeeds::test_type = "2DTest"
+AsterSeeds::test_case = "KHI"
+AsterSeeds::w0 = 0.1
+AsterSeeds::sigma = 0.0353553390593274 # 0.05 / sqrt(2)
+AsterSeeds::rhoUp = 1.0
+AsterSeeds::vxUp = -0.5
+AsterSeeds::rhoLow = 2.0
+AsterSeeds::vxLow = 0.5
+AsterSeeds::p_val = 2.5
+
+# -------------------- AsterX --------------------------------------------------
+AsterX::debug_mode = no
+AsterX::flux_type = "LxF"
+AsterX::vector_potential_gauge = "generalized Lorenz"
+AsterX::lorenz_damp_fac = 1.5 / ($dtfac * (1.0 / $ncells))
+AsterX::timelevels = 1
+AsterX::local_spatial_order = 4
+AsterX::local_estimate_error = yes
+AsterX::update_tmunu = no
+AsterX::recon_type = "z_vec"
+AsterX::use_entropy_fix = no
+
+ReconX::reconstruction_method = "minmod"
+ReconX::ppm_zone_flattening = yes
+ReconX::ppm_shock_detection = no
+
+Con2PrimFactory::c2p_prime = "RePrimAnd"
+Con2PrimFactory::c2p_second = "none"
+Con2PrimFactory::c2p_tol = 1.e-8
+Con2PrimFactory::max_iter = 100
+Con2PrimFactory::rho_abs_min = 1.e-11
+Con2PrimFactory::atmo_tol = 1.e-3
+Con2PrimFactory::t_atmo = 9.9770006382257168e-3
+Con2PrimFactory::unit_test = yes
+Con2PrimFactory::B_lim = 1.e8
+Con2PrimFactory::vw_lim = 10
+Con2PrimFactory::Ye_lenient = yes
+Con2PrimFactory::thermal_eos_atmo = no
+Con2PrimFactory::use_temperature = no
+
+# Preserve the original KHI ideal-gas equation of state.
+EOSX::evolution_eos = "IdealGas"
+EOSX::gl_gamma = 5.0 / 3.0
+EOSX::poly_gamma = 5.0 / 3.0
+EOSX::rho_max = 1.e8
+EOSX::eps_max = 1.e8
+
+# -------------------- FlowTracerX ---------------------------------------------
+FlowTracerX::active = yes
+FlowTracerX::verbose = yes
+
+# Seed narrow boxes across both density jumps. Each box spans the full periodic
+# x direction and the complete two-cell z thickness. The requested split is
+# exactly 200 particles on the lower layer and 800 on the upper layer.
+FlowTracerX::num_tracer_sets = 2
+
+FlowTracerX::tracer_name[0] = "lower_shear_layer"
+FlowTracerX::tracer_enabled[0] = yes
+FlowTracerX::seed_type[0] = "random_box"
+FlowTracerX::num_particles[0] = 200
+FlowTracerX::seed_center_x[0] = 0.0
+FlowTracerX::seed_center_y[0] = -$shear_layer_y
+FlowTracerX::seed_center_z[0] = 0.0
+FlowTracerX::seed_box_size_x[0] = 1.0
+FlowTracerX::seed_box_size_y[0] = $shear_seed_width
+FlowTracerX::seed_box_size_z[0] = 2.0 / $ncells
+FlowTracerX::random_seed[0] = 20260818
+FlowTracerX::particle_weight[0] = 1.0
+FlowTracerX::start_iteration[0] = 0
+FlowTracerX::start_time[0] = -1.0
+FlowTracerX::injection_every_iterations[0] = 0
+FlowTracerX::injection_every_time[0] = 0.0
+
+FlowTracerX::tracer_name[1] = "upper_shear_layer"
+FlowTracerX::tracer_enabled[1] = yes
+FlowTracerX::seed_type[1] = "random_box"
+FlowTracerX::num_particles[1] = 800
+FlowTracerX::seed_center_x[1] = 0.0
+FlowTracerX::seed_center_y[1] = $shear_layer_y
+FlowTracerX::seed_center_z[1] = 0.0
+FlowTracerX::seed_box_size_x[1] = 1.0
+FlowTracerX::seed_box_size_y[1] = $shear_seed_width
+FlowTracerX::seed_box_size_z[1] = 2.0 / $ncells
+FlowTracerX::random_seed[1] = 20260819
+FlowTracerX::particle_weight[1] = 1.0
+FlowTracerX::start_iteration[1] = 0
+FlowTracerX::start_time[1] = -1.0
+FlowTracerX::injection_every_iterations[1] = 0
+FlowTracerX::injection_every_time[1] = 0.0
+
+# GPU gathers store these cell-centered fluid fields with the particle records.
+FlowTracerX::sample_variables = "
+  HydroBaseX::rho
+  HydroBaseX::press
+  HydroBaseX::eps
+  HydroBaseX::Ye
+  HydroBaseX::velx
+  HydroBaseX::vely
+  HydroBaseX::velz
+"
+FlowTracerX::out_every = $output_every
+FlowTracerX::out_dir = $parfile
+FlowTracerX::openpmd_backend = "bp5"
+FlowTracerX::debug_tsv_every = 0
+
+# x is periodic. Particles that leave either non-periodic y/z face or enter an
+# invalid Aster fluid-mask region are removed on the GPU.
+FlowTracerX::destroy_mask_var = "AsterMasks::aster_mask_cc"
+FlowTracerX::destroy_mask_comparison = "below"
+FlowTracerX::destroy_mask_value = 0.5
+FlowTracerX::destroy_if_lapse_below = -1.0
+FlowTracerX::max_num_cells_moved = 8
+FlowTracerX::subcycling_guard_cells = 1
+
+# -------------------- TimerReport ---------------------------------------------
+TimerReport::out_every = 128
+TimerReport::out_filename = "TimerReport"
+TimerReport::output_all_timers_together = yes
+TimerReport::output_all_timers_readable = yes
+TimerReport::n_top_timers = 50
+
+# -------------------- IO ------------------------------------------------------
+CarpetX::out_norm_every = 8
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_norm_vars = "all"
+
+# Fluid and particle data use BP5 and exactly the same output cadence.
+IO::out_dir = $parfile
+IO::out_every = $output_every
+IO::parfile_write = no
+CarpetX::openpmd_format = "ADIOS2_BP5"
+CarpetX::out_openpmd_vars = "
+  HydroBaseX::rho
+  HydroBaseX::eps
+  HydroBaseX::press
+  HydroBaseX::vel
+  HydroBaseX::Bvec
+  HydroBaseX::Ye
+  CarpetXRegrid::regrid_error
+  AsterAnalysis::mhd_energy_ratio
+  AsterX::con2prim_flag
+"
+
+# Dynamic KHI AMR currently triggers an upstream CarpetX BP5 band-mesh
+# assertion during checkpoint output. Checkpoint/recovery is covered by the
+# dedicated FlowTracerX tests; disable it for this visualization production run.
+IO::checkpoint_every = -1
+IO::checkpoint_on_terminate = no
+IO::checkpoint_dir = $parfile
+IO::checkpoint_file = "checkpoint"
+CarpetX::checkpoint_method = "openpmd"

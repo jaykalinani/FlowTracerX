@@ -1,0 +1,204 @@
+ActiveThorns = "
+  ADMBaseX
+  AsterAnalysis
+  AsterMasks
+  AsterSeeds
+  AsterX
+  CarpetX
+  CoordinatesX
+  Cowling
+  EOSX
+  FlowTracerX
+  Formaline
+  HydroBaseX
+  IOUtil
+  ODESolvers
+  TimerReport
+  TmunuBaseX
+"
+
+# ***** User-defined parameters *****
+$nlevels = 1
+$ncells = 160
+$dtfac = 0.25
+$xmin = -6.0
+$xmax = 6.0
+$output_every = 16
+
+# -------------------- Cactus --------------------------------------------------
+Cactus::cctk_show_schedule = yes
+Cactus::presync_mode = "mixed-error"
+Cactus::terminate = "time"
+Cactus::cctk_final_time = 4.0
+
+# -------------------- CarpetX -------------------------------------------------
+CarpetX::verbose = no
+
+CarpetX::xmin = $xmin
+CarpetX::ymin = $xmin
+CarpetX::zmin = $xmin
+CarpetX::xmax = $xmax
+CarpetX::ymax = $xmax
+CarpetX::zmax = $xmax
+
+CarpetX::ncells_x = $ncells
+CarpetX::ncells_y = $ncells
+CarpetX::ncells_z = $ncells
+
+CarpetX::boundary_x = "neumann"
+CarpetX::boundary_y = "neumann"
+CarpetX::boundary_z = "neumann"
+CarpetX::boundary_upper_x = "neumann"
+CarpetX::boundary_upper_y = "neumann"
+CarpetX::boundary_upper_z = "neumann"
+
+CarpetX::max_num_levels = $nlevels
+CarpetX::regrid_every = 1000000
+CarpetX::regrid_error_threshold = 0.01
+
+CarpetX::blocking_factor_x = 1
+CarpetX::blocking_factor_y = 1
+CarpetX::blocking_factor_z = 1
+CarpetX::max_grid_size_x = 160
+CarpetX::max_grid_size_y = 160
+CarpetX::max_grid_size_z = 160
+
+CarpetX::prolongation_type = "minmod"
+CarpetX::prolongation_order = 5
+CarpetX::interpolation_order = 1
+CarpetX::ghost_size = 2
+CarpetX::dtfac = $dtfac
+
+# -------------------- ODESolvers ----------------------------------------------
+ODESolvers::method = "RK4"
+
+# -------------------- ADMBaseX -------------------------------------------------
+ADMBaseX::initial_data = "Cartesian Minkowski"
+ADMBaseX::initial_lapse = "one"
+ADMBaseX::initial_shift = "zero"
+ADMBaseX::initial_dtlapse = "none"
+ADMBaseX::initial_dtshift = "none"
+
+# -------------------- AsterSeeds ----------------------------------------------
+AsterSeeds::test_type = "3DTest"
+AsterSeeds::test_case = "spherical shock"
+AsterSeeds::shock_radius = 1
+AsterSeeds::amplitude = 1
+
+# -------------------- AsterX --------------------------------------------------
+AsterX::debug_mode = no
+AsterX::flux_type = "LxF"
+AsterX::vector_potential_gauge = "generalized Lorenz"
+AsterX::lorenz_damp_fac = 1.5 / ($dtfac * ((2 * $xmax) / $ncells))
+AsterX::timelevels = 1
+AsterX::local_spatial_order = 4
+AsterX::local_estimate_error = no
+AsterX::update_tmunu = no
+AsterX::recon_type = "z_vec"
+AsterX::use_entropy_fix = no
+
+ReconX::reconstruction_method = "minmod"
+ReconX::ppm_zone_flattening = yes
+ReconX::ppm_shock_detection = no
+
+Con2PrimFactory::c2p_prime = "RePrimAnd"
+Con2PrimFactory::c2p_second = "none"
+Con2PrimFactory::c2p_tol = 1.e-8
+Con2PrimFactory::max_iter = 100
+Con2PrimFactory::rho_abs_min = 1.e-11
+Con2PrimFactory::atmo_tol = 1.e-3
+Con2PrimFactory::t_atmo = 9.9770006382257168e-3
+Con2PrimFactory::unit_test = yes
+Con2PrimFactory::B_lim = 1.e8
+Con2PrimFactory::vw_lim = 10
+Con2PrimFactory::Ye_lenient = yes
+Con2PrimFactory::thermal_eos_atmo = no
+Con2PrimFactory::use_temperature = no
+
+# -------------------- EOSX ----------------------------------------------------
+EOSX::evolution_eos = "IdealGas"
+EOSX::gl_gamma = 4.0 / 3.0
+EOSX::poly_gamma = 4.0 / 3.0
+EOSX::rho_max = 1.e8
+EOSX::eps_max = 1.e8
+
+# -------------------- FlowTracerX ---------------------------------------------
+# AsterSeeds sets the uniform high-density/high-pressure state inside
+# r <= 0.8 * shock_radius. Seed exactly 1000 deterministic tracers there.
+FlowTracerX::active = yes
+FlowTracerX::verbose = yes
+
+FlowTracerX::num_tracer_sets = 1
+FlowTracerX::tracer_name[0] = "high_density_core"
+FlowTracerX::tracer_enabled[0] = yes
+FlowTracerX::seed_type[0] = "random_sphere"
+FlowTracerX::num_particles[0] = 1000
+FlowTracerX::seed_center_x[0] = 0.0
+FlowTracerX::seed_center_y[0] = 0.0
+FlowTracerX::seed_center_z[0] = 0.0
+FlowTracerX::seed_radius[0] = 0.8
+FlowTracerX::random_seed[0] = 20260818
+FlowTracerX::particle_weight[0] = 1.0
+FlowTracerX::start_iteration[0] = 0
+FlowTracerX::start_time[0] = -1.0
+FlowTracerX::injection_every_iterations[0] = 0
+FlowTracerX::injection_every_time[0] = 0.0
+
+# Sampled fields are gathered at particle positions on the GPU and stored with
+# position and persistent IDs in the particle BP5 series.
+FlowTracerX::sample_variables = "
+  HydroBaseX::rho
+  HydroBaseX::press
+  HydroBaseX::eps
+  HydroBaseX::Ye
+"
+FlowTracerX::out_every = $output_every
+FlowTracerX::out_dir = $parfile
+FlowTracerX::openpmd_backend = "bp5"
+FlowTracerX::debug_tsv_every = 0
+
+# Neumann mesh faces are non-periodic/non-reflecting to particles, so escaped
+# particles are absorbed. The Aster mask supplies GPU-side invalidation for
+# any excluded fluid region; the lapse proxy remains disabled.
+FlowTracerX::destroy_mask_var = "AsterMasks::aster_mask_cc"
+FlowTracerX::destroy_mask_comparison = "below"
+FlowTracerX::destroy_mask_value = 0.5
+FlowTracerX::destroy_if_lapse_below = -1.0
+FlowTracerX::max_num_cells_moved = 8
+FlowTracerX::subcycling_guard_cells = 1
+
+# -------------------- TimerReport ---------------------------------------------
+TimerReport::out_every = 128
+TimerReport::out_filename = "TimerReport"
+TimerReport::output_all_timers_together = yes
+TimerReport::output_all_timers_readable = yes
+TimerReport::n_top_timers = 50
+
+# -------------------- IO ------------------------------------------------------
+CarpetX::out_norm_every = 8
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_norm_vars = "all"
+
+# Use one cadence and BP5 backend for fluid and particle visualization.
+IO::out_dir = $parfile
+IO::out_every = $output_every
+IO::parfile_write = no
+CarpetX::openpmd_format = "ADIOS2_BP5"
+CarpetX::out_openpmd_vars = "
+  HydroBaseX::rho
+  HydroBaseX::eps
+  HydroBaseX::press
+  HydroBaseX::vel
+  HydroBaseX::Bvec
+  HydroBaseX::Ye
+  AsterAnalysis::mhd_energy_ratio
+  AsterX::con2prim_flag
+"
+
+# FlowTracerX follows these CarpetX checkpoint decisions and writes its native
+# AMReX particle sidecar beside the matching mesh checkpoint.
+IO::checkpoint_every = 128
+IO::checkpoint_on_terminate = yes
+IO::checkpoint_dir = $parfile
+IO::checkpoint_file = "checkpoint"
+CarpetX::checkpoint_method = "openpmd"

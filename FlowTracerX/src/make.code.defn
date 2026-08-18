@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+SRCS = carpetx_adapter.cxx \
+       transport.cxx \
+       particle_container.cxx \
+       seeding.cxx \
+       io.cxx \
+       flowtracerx.cxx
+
+SUBDIRS =

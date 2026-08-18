@@ -1,0 +1,58 @@
+ActiveThorns = "
+  ADMBaseX
+  CarpetX
+  FlowTracerX
+  HydroBaseX
+  IOUtil
+  ODESolvers
+  TestFlowTracerX
+"
+
+Cactus::presync_mode = "mixed-error"
+Cactus::cctk_itlast = 1
+
+CarpetX::xmin = -1.0
+CarpetX::ymin = -1.0
+CarpetX::zmin = -1.0
+CarpetX::xmax = 1.0
+CarpetX::ymax = 1.0
+CarpetX::zmax = 1.0
+CarpetX::ncells_x = 16
+CarpetX::ncells_y = 16
+CarpetX::ncells_z = 16
+CarpetX::blocking_factor_x = 1
+CarpetX::blocking_factor_y = 1
+CarpetX::blocking_factor_z = 1
+CarpetX::ghost_size = 2
+CarpetX::dtfac = 0.5
+CarpetX::reflection_upper_x = yes
+CarpetX::boundary_x = "linear extrapolation"
+CarpetX::boundary_y = "linear extrapolation"
+CarpetX::boundary_z = "linear extrapolation"
+CarpetX::boundary_upper_y = "linear extrapolation"
+CarpetX::boundary_upper_z = "linear extrapolation"
+
+ODESolvers::method = "RK4"
+
+FlowTracerX::active = yes
+FlowTracerX::sample_variables = ""
+FlowTracerX::num_tracer_sets = 1
+FlowTracerX::tracer_name[0] = "upper_x_reflection"
+FlowTracerX::seed_type[0] = "lattice"
+FlowTracerX::lattice_nx[0] = 1
+FlowTracerX::lattice_ny[0] = 1
+FlowTracerX::lattice_nz[0] = 1
+FlowTracerX::seed_center_x[0] = 0.98
+FlowTracerX::seed_box_size_x[0] = 0.02
+FlowTracerX::seed_box_size_y[0] = 0.02
+FlowTracerX::seed_box_size_z[0] = 0.02
+
+TestFlowTracerX::test_velocity[0] = 1.0
+TestFlowTracerX::expected_particles = 1
+TestFlowTracerX::check_mean_position = yes
+TestFlowTracerX::expected_mean_position[0] = 0.9575
+TestFlowTracerX::expected_mean_position[1] = 0.0
+TestFlowTracerX::expected_mean_position[2] = 0.0
+TestFlowTracerX::position_tolerance = 1.0e-12
+
+IO::parfile_write = "no"

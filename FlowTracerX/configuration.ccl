@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+REQUIRES CarpetX AMReX Loop MPI IOUtil AsterUtils
+
+REQUIRES THORNS: HydroBaseX ADMBaseX ODESolvers
+
+OPTIONAL openPMD_api
+{
+}
+
+PROVIDES FlowTracerX
+{
+}

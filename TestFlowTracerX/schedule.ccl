@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+STORAGE: state[1] state_rhs mask
+
+SCHEDULE TestFlowTracerX_Initial IN ODESolvers_Initial
+{
+  LANG: C
+  WRITES: state(everywhere)
+} "Initialize the test evolution field"
+
+SCHEDULE TestFlowTracerX_SetFields IN ODESolvers_PostStep
+{
+  LANG: C
+  WRITES: HydroBaseX::vel(everywhere)
+  WRITES: ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
+  WRITES: mask(everywhere)
+} "Set analytic tracer transport fields"
+
+SCHEDULE TestFlowTracerX_SyncState IN ODESolvers_PostStep
+{
+  LANG: C
+  OPTIONS: global
+  SYNC: state
+} "Synchronize the dummy evolution field"
+
+SCHEDULE TestFlowTracerX_RHS IN ODESolvers_RHS
+{
+  LANG: C
+  WRITES: state_rhs(everywhere)
+} "Set the dummy evolution RHS"
+
+SCHEDULE TestFlowTracerX_Check AT CCTK_TERMINATE BEFORE FlowTracerX_Shutdown
+{
+  LANG: C
+  OPTIONS: global
+} "Check the final particle count"

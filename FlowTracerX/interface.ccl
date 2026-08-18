@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+IMPLEMENTS: FlowTracerX
+
+INHERITS: HydroBaseX ADMBaseX
+
+USES INCLUDE HEADER: driver.hxx
+USES INCLUDE HEADER: schedule.hxx
+USES INCLUDE HEADER: loop_device.hxx
+USES INCLUDE HEADER: aster_interp.hxx
+
+INCLUDES HEADER: flowtracerx_api.hxx IN flowtracerx_api.hxx
+
+PRIVATE:
+
+CCTK_REAL particle_vtilde TYPE=gf CENTERING={ccc} TAGS='parities={-1 +1 +1   +1 -1 +1   +1 +1 -1} checkpoint="no"' { vtilde_x vtilde_y vtilde_z } "Coordinate transport velocity alpha v^i - beta^i"

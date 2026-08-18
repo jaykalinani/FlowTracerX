@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+IMPLEMENTS: TestFlowTracerX
+
+INHERITS: HydroBaseX ADMBaseX
+
+USES INCLUDE HEADER: loop_device.hxx
+USES INCLUDE HEADER: flowtracerx_api.hxx
+
+PUBLIC:
+
+CCTK_REAL state TYPE=gf CENTERING={ccc} TAGS='rhs="state_rhs"' "Dummy evolved field"
+CCTK_REAL state_rhs TYPE=gf CENTERING={ccc} TAGS='checkpoint="no"' "Dummy RHS"
+CCTK_REAL mask TYPE=gf CENTERING={ccc} TAGS='checkpoint="no"' "Analytic particle-validity mask"

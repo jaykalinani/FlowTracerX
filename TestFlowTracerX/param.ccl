@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+RESTRICTED:
+
+REAL test_velocity[3] "Constant Eulerian test velocity"
+{
+  *:* :: "Any velocity"
+} 0.0
+
+REAL test_lapse "Constant test lapse"
+{
+  0:* :: "Nonnegative lapse"
+} 1.0
+
+REAL test_shift[3] "Constant test shift"
+{
+  *:* :: "Any shift"
+} 0.0
+
+REAL mask_radius "Set the analytic mask to zero inside this radius; negative disables"
+{
+  *:* :: "Coordinate radius"
+} -1.0
+
+INT expected_particles "Expected global particle count at termination; negative disables"
+{
+  -1:* :: "Expected count"
+} -1
+
+BOOLEAN check_mean_position "Check the global mean tracer position at termination"
+{
+} no
+
+BOOLEAN check_linear_mean_position "Check the mean against initial_mean_position + expected_coordinate_velocity * time"
+{
+} no
+
+REAL expected_mean_position[3] "Expected mean particle coordinate"
+{
+  *:* :: "Coordinate"
+} 0.0
+
+REAL initial_mean_position[3] "Initial mean coordinate for the time-dependent check"
+{
+  *:* :: "Coordinate"
+} 0.0
+
+REAL expected_coordinate_velocity[3] "Analytic coordinate velocity for the time-dependent check"
+{
+  *:* :: "Coordinate velocity"
+} 0.0
+
+REAL position_tolerance "Absolute tolerance for each mean coordinate"
+{
+  0:* :: "Tolerance"
+} 1.0e-12

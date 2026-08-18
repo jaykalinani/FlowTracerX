@@ -1,0 +1,201 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+RESTRICTED:
+
+BOOLEAN active "Enable passive fluid tracers"
+{
+} no
+
+BOOLEAN verbose "Print concise particle lifecycle summaries" STEERABLE=always
+{
+} no
+
+STRING sample_variables "Whitespace-separated qualified variables sampled for diagnostics"
+{
+  ".*" :: "Any list of qualified Cactus variables"
+} "HydroBaseX::rho"
+
+INT out_every "Write synchronized particle diagnostics every this many iterations" STEERABLE=always
+{
+  0 :: "Disabled"
+  1:* :: "Output cadence"
+} 0
+
+STRING out_dir "Particle diagnostic directory"
+{
+  ".+" :: "Directory path"
+} "flowtracerx"
+
+KEYWORD openpmd_backend "openPMD file backend"
+{
+  "bp5" :: "ADIOS2 BP5"
+} "bp5"
+
+INT debug_tsv_every "Write bounded per-rank TSV diagnostics at this iteration cadence" STEERABLE=always
+{
+  0 :: "Disabled"
+  1:* :: "Debug output cadence"
+} 0
+
+INT debug_max_particles "Hard global particle limit for debug TSV output"
+{
+  1:* :: "Particle limit"
+} 10000
+
+INT max_num_cells_moved "Maximum displacement in cells for neighbor-only redistribution"
+{
+  1:* :: "Cell count"
+} 8
+
+INT subcycling_guard_cells "Keep asynchronously evolved particles on their current AMR box within this many cells"
+{
+  0:* :: "AMReX ownership guard; requires one additional CarpetX ghost cell"
+} 1
+
+REAL destroy_if_lapse_below "Destroy particles when interpolated lapse is at or below this value; negative disables"
+{
+  *:* :: "Lapse threshold"
+} -1.0
+
+STRING destroy_mask_var "Qualified scalar validity/excision mask sampled on the GPU; empty disables"
+{
+  "^$" :: "Disabled"
+  ".+::.+" :: "Qualified Cactus variable"
+} ""
+
+KEYWORD destroy_mask_comparison "Mask comparison used to destroy a particle"
+{
+  "below" :: "Destroy when mask <= destroy_mask_value"
+  "above" :: "Destroy when mask >= destroy_mask_value"
+} "below"
+
+REAL destroy_mask_value "Threshold for destroy_mask_var"
+{
+  *:* :: "Any value"
+} 0.5
+
+INT num_tracer_sets "Number of configured tracer sets"
+{
+  0:32 :: "Tracer-set count"
+} 0
+
+STRING tracer_name[32] "Readable name for this tracer set"
+{
+  ".*" :: "Any name"
+} ""
+
+BOOLEAN tracer_enabled[32] "Enable this tracer set"
+{
+} yes
+
+KEYWORD seed_type[32] "Built-in seed distribution"
+{
+  "lattice" :: "Regular Cartesian lattice"
+  "random_box" :: "Deterministic uniform random box"
+  "random_sphere" :: "Deterministic uniform-volume sphere"
+  "random_shell" :: "Deterministic uniform-volume spherical shell"
+} "lattice"
+
+INT num_particles[32] "Particle count for a random seed distribution"
+{
+  0:* :: "Particle count"
+} 0
+
+INT lattice_nx[32] "Number of lattice particles in the x direction"
+{
+  1:* :: "Lattice dimension"
+} 1
+
+INT lattice_ny[32] "Number of lattice particles in the y direction"
+{
+  1:* :: "Lattice dimension"
+} 1
+
+INT lattice_nz[32] "Number of lattice particles in the z direction"
+{
+  1:* :: "Lattice dimension"
+} 1
+
+REAL seed_center_x[32] "x coordinate of the seed center"
+{
+  *:* :: "Coordinate"
+} 0.0
+
+REAL seed_center_y[32] "y coordinate of the seed center"
+{
+  *:* :: "Coordinate"
+} 0.0
+
+REAL seed_center_z[32] "z coordinate of the seed center"
+{
+  *:* :: "Coordinate"
+} 0.0
+
+REAL seed_box_size_x[32] "Full x width of a box/lattice seed; zero uses the domain width and midpoint"
+{
+  0:* :: "Full coordinate width"
+} 0.0
+
+REAL seed_box_size_y[32] "Full y width of a box/lattice seed; zero uses the domain width and midpoint"
+{
+  0:* :: "Full coordinate width"
+} 0.0
+
+REAL seed_box_size_z[32] "Full z width of a box/lattice seed; zero uses the domain width and midpoint"
+{
+  0:* :: "Full coordinate width"
+} 0.0
+
+REAL seed_radius[32] "Outer radius of a sphere or shell seed"
+{
+  0:* :: "Radius"
+} 0.0
+
+REAL seed_inner_radius[32] "Inner radius of a shell seed"
+{
+  0:* :: "Radius"
+} 0.0
+
+INT random_seed[32] "Counter-based random seed"
+{
+  *:* :: "Seed"
+} 0
+
+REAL particle_weight[32] "Diagnostic weight assigned to each particle"
+{
+  0:* :: "Weight"
+} 1.0
+
+INT start_iteration[32] "First eligible synchronized iteration; negative disables this condition"
+{
+  -1:* :: "Iteration"
+} 0
+
+REAL start_time[32] "First eligible simulation time; negative disables this condition"
+{
+  *:* :: "Time"
+} -1.0
+
+INT injection_every_iterations[32] "Repeat cadence in synchronized iterations"
+{
+  0:* :: "Zero means inject once"
+} 0
+
+REAL injection_every_time[32] "Repeat cadence in simulation time"
+{
+  0:* :: "Zero means disabled"
+} 0.0
+
+SHARES: Driver
+USES BOOLEAN use_subcycling
+
+SHARES: IO
+USES BOOLEAN checkpoint_ID
+USES INT checkpoint_every
+USES REAL checkpoint_every_walltime_hours
+USES BOOLEAN checkpoint_on_terminate
+USES STRING checkpoint_dir
+USES STRING checkpoint_file
+USES KEYWORD recover
+USES STRING recover_dir
+USES STRING recover_file

@@ -1,0 +1,25 @@
+NPROCS 1
+
+TEST constant-advection
+{
+}
+
+TEST absorbing-boundary
+{
+}
+
+TEST mask-removal
+{
+}
+
+TEST amr-subcycling
+{
+}
+
+TEST imex42l-advection
+{
+}
+
+TEST imex32l-advection
+{
+}
