@@ -59,4 +59,10 @@ TestFlowTracerX::expected_mean_position[1] = -0.0075
 TestFlowTracerX::expected_mean_position[2] = 0.00375
 TestFlowTracerX::position_tolerance = 1.0e-12
 
+IO::out_dir = $parfile
+IO::out_every = 1
 IO::parfile_write = "no"
+CarpetX::out_metadata = no
+CarpetX::out_norm_vars = "TestFlowTracerX::mask"
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_tsv_vars = " "

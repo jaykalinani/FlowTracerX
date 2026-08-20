@@ -50,4 +50,10 @@ FlowTracerX::seed_box_size_z[0] = 0.2
 TestFlowTracerX::test_velocity[0] = 1.0
 TestFlowTracerX::expected_particles = 0
 
+IO::out_dir = $parfile
+IO::out_every = 1
 IO::parfile_write = "no"
+CarpetX::out_metadata = no
+CarpetX::out_norm_vars = "TestFlowTracerX::mask"
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_tsv_vars = " "

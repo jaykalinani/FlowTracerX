@@ -84,4 +84,10 @@ TestFlowTracerX::expected_coordinate_acceleration[1] = 0.0
 TestFlowTracerX::expected_coordinate_acceleration[2] = 0.0
 TestFlowTracerX::position_tolerance = 1.0e-11
 
+IO::out_dir = $parfile
+IO::out_every = 1
 IO::parfile_write = no
+CarpetX::out_metadata = no
+CarpetX::out_norm_vars = "TestFlowTracerX::mask"
+CarpetX::out_norm_omit_unstable = yes
+CarpetX::out_tsv_vars = " "
