@@ -1,0 +1,178 @@
+ActiveThorns = "
+  ADMBaseX
+  AsterMasks
+  AsterSeeds
+  AsterX
+  CarpetX
+  CarpetXRegrid
+  Con2PrimFactory
+  CoordinatesX
+  Cowling
+  EOSX
+  FlowTracerX
+  HydroBaseX
+  IOUtil
+  ODESolvers
+  ReconX
+  Subcycling
+  TmunuBaseX
+"
+
+$nlevels = 2
+$ncells = 16
+$ncells_z = 8
+$dtfac = 0.25
+$particles_per_shear_layer = 400000
+$uniform_particles = 200000
+
+Cactus::cctk_show_schedule = no
+Cactus::presync_mode = "mixed-error"
+Cactus::terminate = "iteration"
+Cactus::cctk_itlast = 4
+
+CarpetX::verbose = no
+CarpetX::poison_undefined_values = no
+CarpetX::poison_undefined_arrays = no
+CarpetX::xmin = -0.5
+CarpetX::ymin = -0.5
+CarpetX::zmin = -1.0 / $ncells
+CarpetX::xmax = 0.5
+CarpetX::ymax = 0.5
+CarpetX::zmax = 1.0 / $ncells
+CarpetX::ncells_x = $ncells
+CarpetX::ncells_y = $ncells
+CarpetX::ncells_z = $ncells_z
+CarpetX::periodic = yes
+CarpetX::periodic_x = yes
+CarpetX::periodic_y = yes
+CarpetX::periodic_z = yes
+CarpetX::boundary_x = "none"
+CarpetX::boundary_y = "none"
+CarpetX::boundary_z = "none"
+CarpetX::boundary_upper_x = "none"
+CarpetX::boundary_upper_y = "none"
+CarpetX::boundary_upper_z = "none"
+CarpetX::max_num_levels = $nlevels
+CarpetX::regrid_every = 1
+CarpetX::regrid_error_threshold = 0.2
+CarpetX::blocking_factor_x = 8
+CarpetX::blocking_factor_y = 8
+CarpetX::blocking_factor_z = 2
+CarpetX::max_grid_size_x = $ncells
+CarpetX::max_grid_size_y = $ncells
+CarpetX::max_grid_size_z = $ncells_z
+CarpetX::max_tile_size_x = 10240000
+CarpetX::max_tile_size_y = 10240000
+CarpetX::max_tile_size_z = 10240000
+CarpetX::prolongation_type = "ddf"
+CarpetX::ghost_size = 3
+CarpetX::dtfac = $dtfac
+CarpetX::refine_grid_layout = no
+CarpetX::use_subcycling = yes
+CarpetX::restrict_during_sync = no
+
+ODESolvers::method = "RK4"
+
+ADMBaseX::initial_data = "Cartesian Minkowski"
+ADMBaseX::initial_lapse = "one"
+ADMBaseX::initial_shift = "zero"
+ADMBaseX::initial_dtlapse = "none"
+ADMBaseX::initial_dtshift = "none"
+
+AsterSeeds::test_type = "2DTest"
+AsterSeeds::test_case = "KHI"
+AsterSeeds::w0 = 0.1
+AsterSeeds::sigma = 0.0353553390593274
+AsterSeeds::rhoUp = 1.0
+AsterSeeds::vxUp = -0.5
+AsterSeeds::rhoLow = 2.0
+AsterSeeds::vxLow = 0.5
+AsterSeeds::p_val = 2.5
+
+AsterX::debug_mode = no
+AsterX::flux_type = "LxF"
+AsterX::vector_potential_gauge = "generalized Lorenz"
+AsterX::lorenz_damp_fac = 1.5 / ($dtfac * (1.0 / $ncells))
+AsterX::timelevels = 1
+AsterX::local_spatial_order = 4
+AsterX::local_estimate_error = yes
+AsterX::update_tmunu = no
+AsterX::recon_type = "z_vec"
+AsterX::use_entropy_fix = no
+
+ReconX::reconstruction_method = "minmod"
+ReconX::ppm_zone_flattening = yes
+ReconX::ppm_shock_detection = no
+
+Con2PrimFactory::c2p_prime = "Noble"
+Con2PrimFactory::c2p_second = "Palenzuela"
+Con2PrimFactory::c2p_tol = 1.0e-8
+Con2PrimFactory::max_iter = 100
+Con2PrimFactory::rho_abs_min = 1.0e-11
+Con2PrimFactory::atmo_tol = 1.0e-3
+Con2PrimFactory::t_atmo = 9.9770006382257168e-3
+Con2PrimFactory::unit_test = no
+Con2PrimFactory::B_lim = 1.0e8
+Con2PrimFactory::vw_lim = 10
+Con2PrimFactory::Ye_lenient = yes
+Con2PrimFactory::thermal_eos_atmo = no
+Con2PrimFactory::use_temperature = no
+
+EOSX::evolution_eos = "IdealGas"
+EOSX::gl_gamma = 5.0 / 3.0
+EOSX::poly_gamma = 5.0 / 3.0
+EOSX::rho_max = 1.0e8
+EOSX::eps_max = 1.0e8
+
+FlowTracerX::active = yes
+FlowTracerX::verbose = yes
+FlowTracerX::num_tracer_sets = 3
+
+# Forty percent of the particles are placed at each shear layer; the remaining
+# twenty percent sample the complete periodic domain.
+FlowTracerX::tracer_name[0] = "lower_shear_layer"
+FlowTracerX::seed_type[0] = "random_box"
+FlowTracerX::num_particles[0] = $particles_per_shear_layer
+FlowTracerX::seed_center_y[0] = -0.25
+FlowTracerX::seed_box_size_x[0] = 1.0
+FlowTracerX::seed_box_size_y[0] = 0.1
+FlowTracerX::seed_box_size_z[0] = 2.0 / $ncells
+FlowTracerX::random_seed[0] = 20260818
+
+FlowTracerX::tracer_name[1] = "upper_shear_layer"
+FlowTracerX::seed_type[1] = "random_box"
+FlowTracerX::num_particles[1] = $particles_per_shear_layer
+FlowTracerX::seed_center_y[1] = 0.25
+FlowTracerX::seed_box_size_x[1] = 1.0
+FlowTracerX::seed_box_size_y[1] = 0.1
+FlowTracerX::seed_box_size_z[1] = 2.0 / $ncells
+FlowTracerX::random_seed[1] = 20260819
+
+FlowTracerX::tracer_name[2] = "uniform_domain"
+FlowTracerX::seed_type[2] = "random_box"
+FlowTracerX::num_particles[2] = $uniform_particles
+FlowTracerX::seed_box_size_x[2] = 1.0
+FlowTracerX::seed_box_size_y[2] = 1.0
+FlowTracerX::seed_box_size_z[2] = 2.0 / $ncells
+FlowTracerX::random_seed[2] = 20260820
+
+FlowTracerX::sample_variables = "
+  HydroBaseX::rho
+  HydroBaseX::press
+  HydroBaseX::velx
+  HydroBaseX::vely
+  HydroBaseX::velz
+"
+FlowTracerX::out_every = 0
+FlowTracerX::debug_tsv_every = 0
+FlowTracerX::destroy_mask_var = "AsterMasks::aster_mask_cc"
+FlowTracerX::destroy_mask_comparison = "below"
+FlowTracerX::destroy_mask_value = 0.5
+FlowTracerX::max_num_cells_moved = 8
+FlowTracerX::subcycling_guard_cells = 1
+
+IO::out_every = -1
+IO::parfile_write = no
+IO::checkpoint_every = -1
+IO::checkpoint_on_terminate = no
+CarpetX::out_norm_every = 0
