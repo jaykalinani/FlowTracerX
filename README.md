@@ -1,10 +1,11 @@
 # FlowTracerX
 
-**FlowTracerX** is a GPU-accelerated passive fluid-particle tracer for
-[AsterX](https://github.com/jaykalinani/AsterX) and other HydroBaseX/ADMBaseX
-systems running on [CarpetX](https://github.com/EinsteinToolkit/CarpetX).
-Particles are stored and distributed with AMReX and follow
-`dx^i/dt = alpha v^i - beta^i`.
+[![CI](https://github.com/jaykalinani/FlowTracerX/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jaykalinani/FlowTracerX/actions/workflows/ci.yml)
+[![AMReX](https://amrex-codes.github.io/badges/powered%20by-AMReX-red.svg)](https://amrex-codes.github.io)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jaykalinani/FlowTracerX)
+
+FlowTracerX is a GPU-accelerated passive fluid-particle tracer for
+[AsterX](https://github.com/jaykalinani/AsterX).
 
 ## Thorns
 
