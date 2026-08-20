@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  download-build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        accelerator: [cpu, cuda, rocm]
+
+    runs-on: ubuntu-latest
+    container: lwji/carpetx:${{matrix.accelerator}}-real64
+    env:
+      ACCELERATOR: ${{matrix.accelerator}}
+      REAL_PRECISION: real64
+      TEST_OUTPUT_DIR: /__w/FlowTracerX/workspace/simulations/FlowTracerXTests
+      KHI_SMOKE_OUTPUT_DIR: /__w/FlowTracerX/workspace/simulations/FlowTracerXKHISmoke
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ccache
+        run: apt-get update -y && apt-get install -y ccache || true
+
+      - name: Restore compiler cache
+        uses: actions/cache@v5
+        with:
+          path: .ccache
+          key: ccache-${{matrix.accelerator}}-real64-${{github.sha}}
+          restore-keys: |
+            ccache-${{matrix.accelerator}}-real64-
+
+      - name: Download Cactus
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/download.sh"
+
+      - name: Build Cactus
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/build.sh"
+        env:
+          CCACHE_DIR: ${{github.workspace}}/.ccache
+
+      - name: Run FlowTracerX tests
+        if: matrix.accelerator == 'cpu'
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/test.sh"
+
+      - name: Run million-particle KHI AMR smoke test
+        if: matrix.accelerator == 'cpu'
+        run: /bin/bash "$GITHUB_WORKSPACE/scripts/khi-smoke.sh"
+
+      - name: Upload test output
+        if: always() && matrix.accelerator == 'cpu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flowtracerx-test-output
+          path: ${{env.TEST_OUTPUT_DIR}}
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload KHI smoke-test output
+        if: always() && matrix.accelerator == 'cpu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flowtracerx-khi-smoke-output
+          path: ${{env.KHI_SMOKE_OUTPUT_DIR}}
+          retention-days: 7
+          if-no-files-found: warn

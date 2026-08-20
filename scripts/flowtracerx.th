@@ -1,0 +1,158 @@
+# Component list for FlowTracerX CI
+
+!CRL_VERSION = 1.0
+
+!DEFINE ROOT = Cactus
+!DEFINE ARR  = $ROOT/arrangements
+!DEFINE COMPONENTLIST_TARGET = $ROOT/thornlists/
+
+# Cactus flesh
+!TARGET   = $ROOT
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactus.git
+!NAME     = flesh
+!CHECKOUT = .clang-format CONTRIBUTORS COPYRIGHT doc lib Makefile README.md src
+
+# Simulation Factory
+!TARGET   = $ROOT
+!TYPE     = git
+!URL      = https://bitbucket.org/simfactory/simfactory2.git
+!REPO_PATH= $1
+!NAME     = simfactory2
+!CHECKOUT = ./simfactory
+
+# Cactus utilities
+!TARGET   = $ROOT/utils
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/utilities.git
+!REPO_PATH= $2
+!CHECKOUT = ./ParameterFiles ./Scripts ./Syntax
+
+!TARGET   = $ROOT/bin
+!TYPE     = git
+!URL      = https://github.com/gridaphobe/CRL.git
+!CHECKOUT = GetComponents
+
+# CactusBase thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactusbase.git
+!REPO_PATH= $2
+!CHECKOUT =
+CactusBase/Boundary
+CactusBase/CoordBase
+CactusBase/Fortran
+CactusBase/InitBase
+CactusBase/IOUtil
+CactusBase/SymBase
+CactusBase/Time
+
+# CactusUtils thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/cactusutils.git
+!REPO_PATH= $2
+!CHECKOUT =
+CactusUtils/NaNCatcher
+CactusUtils/TimerReport
+
+# External libraries
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/EinsteinToolkit/$1-$2
+!REPO_PATH = ../$1-$2
+!CHECKOUT =
+ExternalLibraries/BLAS
+ExternalLibraries/FFTW3
+ExternalLibraries/GSL
+ExternalLibraries/HDF5
+ExternalLibraries/hwloc
+ExternalLibraries/LAPACK
+ExternalLibraries/libjpeg
+ExternalLibraries/MPI
+ExternalLibraries/OpenSSL
+ExternalLibraries/OpenBLAS
+ExternalLibraries/PETSc
+ExternalLibraries/pthreads
+ExternalLibraries/zlib
+ExternalLibraries/LORENE
+
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/rhaas80/$1-$2
+!REPO_PATH = ../$1-$2
+!CHECKOUT =
+ExternalLibraries/ADIOS2
+ExternalLibraries/AMReX
+ExternalLibraries/NSIMD
+ExternalLibraries/openPMD
+ExternalLibraries/Silo
+ExternalLibraries/ssht
+ExternalLibraries/yaml_cpp
+
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/dradice/Boost.git
+!REPO_PATH = ../$2
+!CHECKOUT =
+ExternalLibraries/Boost
+
+# Numerical thorns
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://bitbucket.org/cactuscode/numerical.git
+!REPO_PATH= $2
+!CHECKOUT =
+Numerical/AEILocalInterp
+
+# CarpetX
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/CarpetX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+CarpetX/ADMBaseX
+CarpetX/Algo
+CarpetX/Arith
+CarpetX/BoxInBox
+CarpetX/CarpetX
+CarpetX/CarpetXRegrid
+CarpetX/CoordinatesX
+CarpetX/Derivs
+CarpetX/ErrorEstimator
+CarpetX/HydroBaseX
+CarpetX/Loop
+CarpetX/ODESolvers
+CarpetX/Subcycling
+CarpetX/TmunuBaseX
+
+# Cowling spacetime for the KHI integration smoke test
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/SpacetimeX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+SpacetimeX/Cowling
+
+# AsterX and interpolation utilities
+!TARGET   = $ARR
+!TYPE     = git
+!URL      = https://github.com/jaykalinani/AsterX.git
+!REPO_PATH= $2
+!REPO_BRANCH = nuX
+!CHECKOUT =
+AsterX/AsterMasks
+AsterX/AsterSeeds
+AsterX/AsterUtils
+AsterX/AsterX
+AsterX/Con2PrimFactory
+AsterX/EOSX
+AsterX/ReconX
+
+# The workflow checkout supplies FlowTracerX main or the pull request.
+!TARGET   = $ARR
+!TYPE     = ignore
+!CHECKOUT =
+FlowTracerX/FlowTracerX
