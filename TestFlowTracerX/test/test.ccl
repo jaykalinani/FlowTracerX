@@ -20,6 +20,14 @@ TEST amr-time-interpolation
 {
 }
 
+TEST periodic-corner
+{
+}
+
+TEST particle-output
+{
+}
+
 TEST imex42l-advection
 {
 }
