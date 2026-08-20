@@ -7,6 +7,11 @@ REAL test_velocity[3] "Constant Eulerian test velocity"
   *:* :: "Any velocity"
 } 0.0
 
+REAL test_velocity_x_time_derivative "Time derivative added to the x velocity through the evolved test field"
+{
+  *:* :: "Any velocity time derivative"
+} 0.0
+
 REAL test_lapse "Constant test lapse"
 {
   0:* :: "Nonnegative lapse"
@@ -35,6 +40,10 @@ BOOLEAN check_linear_mean_position "Check the mean against initial_mean_position
 {
 } no
 
+BOOLEAN check_quadratic_mean_position "Check the mean against the analytic constant-acceleration trajectory"
+{
+} no
+
 REAL expected_mean_position[3] "Expected mean particle coordinate"
 {
   *:* :: "Coordinate"
@@ -48,6 +57,11 @@ REAL initial_mean_position[3] "Initial mean coordinate for the time-dependent ch
 REAL expected_coordinate_velocity[3] "Analytic coordinate velocity for the time-dependent check"
 {
   *:* :: "Coordinate velocity"
+} 0.0
+
+REAL expected_coordinate_acceleration[3] "Analytic coordinate acceleration for the time-dependent check"
+{
+  *:* :: "Coordinate acceleration"
 } 0.0
 
 REAL position_tolerance "Absolute tolerance for each mean coordinate"

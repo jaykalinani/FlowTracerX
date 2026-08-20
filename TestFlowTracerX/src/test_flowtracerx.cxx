@@ -42,7 +42,11 @@ extern "C" void TestFlowTracerX_SetFields(CCTK_ARGUMENTS) {
   grid.loop_all_device<1, 1, 1>(grid.nghostzones,
                                 [=] CCTK_DEVICE(const PointDesc &p)
                                     CCTK_ATTRIBUTE_ALWAYS_INLINE {
-                                      velx(p.I) = velocity_x;
+                                      // Adding the evolved scalar makes the
+                                      // velocity time dependent. Its default
+                                      // RHS is zero, preserving the constant-
+                                      // velocity tests.
+                                      velx(p.I) = velocity_x + state(p.I);
                                       vely(p.I) = velocity_y;
                                       velz(p.I) = velocity_z;
                                       // The spherical zero region emulates an
@@ -69,10 +73,14 @@ extern "C" void TestFlowTracerX_SetFields(CCTK_ARGUMENTS) {
 
 extern "C" void TestFlowTracerX_RHS(CCTK_ARGUMENTS) {
   DECLARE_CCTK_ARGUMENTSX_TestFlowTracerX_RHS;
+  DECLARE_CCTK_PARAMETERS;
+  const CCTK_REAL velocity_time_derivative =
+      test_velocity_x_time_derivative;
   grid.loop_all_device<1, 1, 1>(grid.nghostzones,
                                 [=] CCTK_DEVICE(const PointDesc &p)
                                     CCTK_ATTRIBUTE_ALWAYS_INLINE {
-                                      state_rhs(p.I) = 0;
+                                      state_rhs(p.I) =
+                                          velocity_time_derivative;
                                     });
 }
 
@@ -92,7 +100,8 @@ extern "C" void TestFlowTracerX_Check(CCTK_ARGUMENTS) {
       CCTK_VERROR("Expected %d FlowTracerX particles, found %lld",
                   expected_particles, static_cast<long long>(count));
   }
-  if (check_mean_position || check_linear_mean_position) {
+  if (check_mean_position || check_linear_mean_position ||
+      check_quadratic_mean_position) {
     const CCTK_INT8 count = FlowTracerX_GlobalParticleCount();
     if (count <= 0)
       CCTK_VERROR("Cannot check the FlowTracerX mean position with no "
@@ -102,11 +111,13 @@ extern "C" void TestFlowTracerX_Check(CCTK_ARGUMENTS) {
       CCTK_VERROR("FlowTracerX position reduction failed");
     for (int d = 0; d < 3; ++d) {
       const CCTK_REAL mean = position_sum[d] / count;
-      const CCTK_REAL expected =
-          check_linear_mean_position
-              ? initial_mean_position[d] +
-                    expected_coordinate_velocity[d] * cctk_time
-              : expected_mean_position[d];
+      CCTK_REAL expected = expected_mean_position[d];
+      if (check_linear_mean_position || check_quadratic_mean_position)
+        expected = initial_mean_position[d] +
+                   expected_coordinate_velocity[d] * cctk_time;
+      if (check_quadratic_mean_position)
+        expected += 0.5 * expected_coordinate_acceleration[d] * cctk_time *
+                    cctk_time;
       if (std::abs(mean - expected) > position_tolerance)
         CCTK_VERROR("FlowTracerX mean coordinate %d: expected %.17g, found "
                     "%.17g",

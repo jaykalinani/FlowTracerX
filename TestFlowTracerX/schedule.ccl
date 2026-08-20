@@ -8,9 +8,10 @@ SCHEDULE TestFlowTracerX_Initial IN ODESolvers_Initial
   WRITES: state(everywhere)
 } "Initialize the test evolution field"
 
-SCHEDULE TestFlowTracerX_SetFields IN ODESolvers_PostStep
+SCHEDULE TestFlowTracerX_SetFields IN ODESolvers_PostStep AFTER TestFlowTracerX_SyncState
 {
   LANG: C
+  READS: state(everywhere)
   WRITES: HydroBaseX::vel(everywhere)
   WRITES: ADMBaseX::lapse(everywhere) ADMBaseX::shift(everywhere)
   WRITES: mask(everywhere)

@@ -16,6 +16,10 @@ TEST amr-subcycling
 {
 }
 
+TEST amr-time-interpolation
+{
+}
+
 TEST imex42l-advection
 {
 }
